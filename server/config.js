@@ -16,6 +16,7 @@ const config = {
 
   // Google Sheets API
   googleSheetsCredentials: process.env.GOOGLE_SHEETS_CREDENTIALS || '',
+  googleSheetsCredentialsJson: process.env.GOOGLE_SHEETS_CREDENTIALS_JSON || '',
   googleSheetsId: process.env.GOOGLE_SHEETS_ID || '',
 
   // Google YouTube Data API
@@ -35,8 +36,9 @@ const config = {
     return this.googleMapsApiKey && this.googleMapsApiKey !== 'your_google_maps_api_key_here';
   },
   get isSheetsEnabled() {
-    return this.googleSheetsCredentials && this.googleSheetsId &&
-           this.googleSheetsCredentials !== './credentials.json';
+    const hasFileCredentials = this.googleSheetsCredentials &&
+      this.googleSheetsCredentials !== './credentials.json';
+    return (this.googleSheetsCredentialsJson || hasFileCredentials) && this.googleSheetsId;
   },
   get isYouTubeEnabled() {
     return this.youtubeApiKey && this.youtubeApiKey !== 'your_youtube_api_key_here';
@@ -45,7 +47,7 @@ const config = {
 
 if (config.allowedOrigins.length === 0) {
   config.allowedOrigins = config.nodeEnv === 'production'
-    ? false
+    ? [process.env.APP_URL, process.env.GOOGLE_CLOUD_RUN_SERVICE_URL].filter(Boolean)
     : [`http://localhost:${config.port}`, `http://127.0.0.1:${config.port}`];
 }
 

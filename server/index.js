@@ -69,6 +69,11 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
+    runtime: {
+      service: process.env.K_SERVICE || 'local',
+      revision: process.env.K_REVISION || 'local',
+      region: process.env.CLOUD_RUN_REGION || process.env.GOOGLE_CLOUD_REGION || 'unknown'
+    },
     services: {
       gemini: config.isGeminiEnabled ? 'connected' : 'fallback_mode',
       maps: config.isMapsEnabled ? 'connected' : 'disabled',

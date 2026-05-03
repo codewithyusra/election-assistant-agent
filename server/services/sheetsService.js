@@ -12,7 +12,9 @@ if (config.isSheetsEnabled) {
   try {
     const { google } = require('googleapis');
     const fs = require('fs');
-    const credentials = JSON.parse(fs.readFileSync(config.googleSheetsCredentials, 'utf8'));
+    const credentials = config.googleSheetsCredentialsJson
+      ? JSON.parse(config.googleSheetsCredentialsJson)
+      : JSON.parse(fs.readFileSync(config.googleSheetsCredentials, 'utf8'));
     auth = new google.auth.GoogleAuth({
       credentials,
       scopes: ['https://www.googleapis.com/auth/spreadsheets']

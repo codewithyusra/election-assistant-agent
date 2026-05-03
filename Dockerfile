@@ -1,22 +1,22 @@
-FROM node:18-slim
+FROM node:20-slim
+
+ENV NODE_ENV=production
+ENV PORT=8080
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Install production dependencies only
-RUN npm ci --only=production
+COPY server ./server
+COPY public ./public
 
-# Copy application code
-COPY . .
+RUN chown -R node:node /app
+USER node
 
-# Expose port
 EXPOSE 8080
 
-# Set environment variable for Cloud Run
-ENV PORT=8080
-ENV NODE_ENV=production
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:' + (process.env.PORT || 8080) + '/api/health', res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
-# Start the server
 CMD ["node", "server/index.js"]
