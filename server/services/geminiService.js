@@ -9,6 +9,10 @@ const Logger = require('./logger');
 let genAI = null;
 let model = null;
 
+// Response Cache for Efficiency
+const responseCache = new Map();
+const CACHE_MAX_SIZE = 200;
+
 // Initialize Gemini if API key is available
 if (config.isGeminiEnabled) {
   try {
@@ -45,13 +49,30 @@ const geminiService = {
     }
 
     try {
+      const cacheKey = `${systemPrompt}|${userMessage}`;
+      
+      // Return cached response if available
+      if (responseCache.has(cacheKey)) {
+        Logger.info('Gemini cache hit for efficient response generation');
+        return responseCache.get(cacheKey);
+      }
+
       const prompt = systemPrompt
         ? `${systemPrompt}\n\nUSER QUERY: ${userMessage}\n\nRESPONSE:`
         : userMessage;
 
       const result = await model.generateContent(prompt);
-      const response = result.response;
-      return response.text();
+      const responseText = result.response.text();
+      
+      // Store in cache
+      if (responseCache.size >= CACHE_MAX_SIZE) {
+        // Remove oldest entry if limit reached
+        const firstKey = responseCache.keys().next().value;
+        responseCache.delete(firstKey);
+      }
+      responseCache.set(cacheKey, responseText);
+
+      return responseText;
     } catch (error) {
       Logger.error('Gemini content generation failed', error);
       throw error;

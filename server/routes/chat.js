@@ -24,6 +24,12 @@ router.post('/chat', async (req, res) => {
       });
     }
 
+    if (message.length > 500) {
+      return res.status(400).json({
+        error: 'Message exceeds the maximum allowed length of 500 characters'
+      });
+    }
+
     // Process through the Router Agent
     const startTime = Date.now();
     const result = await routerAgent.process(message.trim(), context);

@@ -18,6 +18,9 @@ const config = {
   googleSheetsCredentials: process.env.GOOGLE_SHEETS_CREDENTIALS || '',
   googleSheetsId: process.env.GOOGLE_SHEETS_ID || '',
 
+  // Google YouTube Data API
+  youtubeApiKey: process.env.YOUTUBE_API_KEY || '',
+
   // Feature flags based on available keys
   get isGeminiEnabled() {
     return this.geminiApiKey && this.geminiApiKey !== 'your_gemini_api_key_here';
@@ -28,6 +31,9 @@ const config = {
   get isSheetsEnabled() {
     return this.googleSheetsCredentials && this.googleSheetsId &&
            this.googleSheetsCredentials !== './credentials.json';
+  },
+  get isYouTubeEnabled() {
+    return this.youtubeApiKey && this.youtubeApiKey !== 'your_youtube_api_key_here';
   }
 };
 

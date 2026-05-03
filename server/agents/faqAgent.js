@@ -5,6 +5,7 @@
 const BaseAgent = require('./baseAgent');
 const geminiService = require('../services/geminiService');
 const electionData = require('../data/electionData.json');
+const youtubeService = require('../services/youtubeService');
 
 class FaqAgent extends BaseAgent {
   constructor() {
@@ -18,9 +19,15 @@ class FaqAgent extends BaseAgent {
   async process(message, context = {}) {
     try {
       const response = await geminiService.generateContent(message, this.getSystemPrompt());
+      
+      let videos = [];
+      if (message.length > 5 && youtubeService.isAvailable()) {
+         videos = await youtubeService.searchVideos(message);
+      }
+
       return this.formatResponse(response, {
         suggestions: ['What is NOTA?', 'How is vote secrecy maintained?', 'What is postal ballot?', 'What is Model Code of Conduct?'],
-        mode: 'ai', metadata: { source: 'gemini' }
+        mode: 'ai', metadata: { source: 'gemini', videos }
       });
     } catch (error) {
       return this.getFallbackResponse(message);
