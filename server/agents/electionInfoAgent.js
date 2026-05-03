@@ -5,6 +5,7 @@
 const BaseAgent = require('./baseAgent');
 const geminiService = require('../services/geminiService');
 const electionData = require('../data/electionData.json');
+const Logger = require('../services/logger');
 
 class ElectionInfoAgent extends BaseAgent {
   constructor() {
@@ -53,7 +54,7 @@ ${JSON.stringify(electionData.process, null, 2)}`;
         metadata: { source: 'gemini' }
       });
     } catch (error) {
-      console.warn('Election Info Agent falling back to static data:', error.message);
+      Logger.warn('Election Info Agent falling back to static data', error);
       return this.getFallbackResponse(message);
     }
   }

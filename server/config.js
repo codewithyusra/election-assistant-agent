@@ -21,6 +21,12 @@ const config = {
   // Google YouTube Data API
   youtubeApiKey: process.env.YOUTUBE_API_KEY || '',
 
+  // Security
+  allowedOrigins: (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean),
+
   // Feature flags based on available keys
   get isGeminiEnabled() {
     return this.geminiApiKey && this.geminiApiKey !== 'your_gemini_api_key_here';
@@ -36,5 +42,11 @@ const config = {
     return this.youtubeApiKey && this.youtubeApiKey !== 'your_youtube_api_key_here';
   }
 };
+
+if (config.allowedOrigins.length === 0) {
+  config.allowedOrigins = config.nodeEnv === 'production'
+    ? false
+    : [`http://localhost:${config.port}`, `http://127.0.0.1:${config.port}`];
+}
 
 module.exports = config;

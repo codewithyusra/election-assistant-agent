@@ -1,6 +1,6 @@
 /**
  * Chat Interface Logic
- * Optimized for high performance and accessibility
+ * Optimized for performance, accessibility, and safe rendering.
  */
 const Chat = {
   isProcessing: false,
@@ -10,18 +10,22 @@ const Chat = {
     this.chatMessages = document.getElementById('chatMessages');
     this.messageInput = document.getElementById('messageInput');
     this.sendBtn = document.getElementById('sendBtn');
+    this.clearBtn = document.getElementById('clearChat');
     this.suggestionsEl = document.getElementById('suggestions');
     this.activeAgentName = document.getElementById('activeAgentName');
     this.modeBadge = document.getElementById('modeBadge');
 
     this.bindEvents();
-    // Use an ARIA-live region for message announcements
     this.chatMessages.setAttribute('role', 'log');
     this.chatMessages.setAttribute('aria-relevant', 'additions');
   },
 
   bindEvents() {
     this.sendBtn.addEventListener('click', () => this.sendMessage());
+    if (this.clearBtn) {
+      this.clearBtn.addEventListener('click', () => this.clearConversation());
+    }
+
     this.messageInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -31,13 +35,14 @@ const Chat = {
   },
 
   /**
-   * Send message and handle interactive components
+   * Send message and handle interactive components.
    */
   async sendMessage(overrideText) {
     const text = overrideText || this.messageInput.value.trim();
     if (!text || this.isProcessing) return;
 
     this.messageInput.value = '';
+    this.conversationHistory.push({ role: 'user', text });
     this.addMessage(text, 'user');
     this.clearSuggestions();
     this.showTyping();
@@ -55,15 +60,17 @@ const Chat = {
 
       if (result.success) {
         const data = result.data;
+        this.conversationHistory.push({ role: 'assistant', text: data.response, agent: data.agent });
         this.addMessage(data.response, 'bot', {
           agent: data.agent,
           mode: data.mode,
           metadata: data.metadata
         });
 
-        // Update UI logic
         this.updateModeBadge(data.mode);
         if (data.suggestions) this.showSuggestions(data.suggestions);
+      } else {
+        this.addMessage(result.error || 'Unable to process that request.', 'bot', { agent: 'System' });
       }
     } catch (error) {
       this.hideTyping();
@@ -74,25 +81,32 @@ const Chat = {
   },
 
   /**
-   * Add message with support for interactive maps
+   * Add message with support for maps and YouTube previews.
    */
   addMessage(text, type, meta = {}) {
     const div = document.createElement('div');
     div.className = `message ${type}-message`;
-    
-    let html = `<div class="message-bubble">${type === 'bot' ? Components.renderMarkdown(text) : text}</div>`;
-    
-    // Meaningful Integration: If map metadata is present, render the interactive map
+
+    let html = `<div class="message-bubble">${type === 'bot' ? Components.renderMarkdown(text) : Components.escapeHtml(text)}</div>`;
+
     if (meta.metadata && meta.metadata.map) {
       html += Components.renderMap(meta.metadata.map);
     }
 
+    if (meta.metadata && meta.metadata.videos) {
+      html += Components.renderVideos(meta.metadata.videos);
+    }
+
     div.innerHTML = `
-      <div class="message-avatar" aria-hidden="true">${type === 'user' ? '👤' : '🤖'}</div>
+      <div class="message-avatar" aria-hidden="true">${type === 'user' ? 'You' : 'AI'}</div>
       <div class="message-content">${html}</div>
     `;
 
     this.chatMessages.appendChild(div);
+    if (meta.agent) {
+      this.activeAgentName.textContent = meta.agent;
+      this.highlightAgent(meta.agent);
+    }
     this.scrollToBottom();
   },
 
@@ -109,9 +123,47 @@ const Chat = {
     });
   },
 
-  clearSuggestions() { this.suggestionsEl.innerHTML = ''; },
-  showTyping() { this.chatMessages.appendChild(Components.createTypingIndicator()); this.scrollToBottom(); },
-  hideTyping() { const el = document.getElementById('typingIndicator'); if (el) el.remove(); },
-  scrollToBottom() { const c = document.getElementById('chatContainer'); c.scrollTop = c.scrollHeight; },
-  updateModeBadge(m) { this.modeBadge.textContent = m === 'ai' ? 'AI Optimized' : 'Standard Mode'; }
+  clearSuggestions() {
+    this.suggestionsEl.innerHTML = '';
+  },
+
+  clearConversation() {
+    this.chatMessages.innerHTML = '';
+    this.conversationHistory = [];
+    this.clearSuggestions();
+    this.activeAgentName.textContent = 'Election Assistant';
+    this.updateModeBadge('ready');
+  },
+
+  showTyping() {
+    this.chatMessages.appendChild(Components.createTypingIndicator());
+    this.scrollToBottom();
+  },
+
+  hideTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+  },
+
+  scrollToBottom() {
+    const container = document.getElementById('chatContainer');
+    container.scrollTop = container.scrollHeight;
+  },
+
+  updateModeBadge(mode) {
+    this.modeBadge.classList.toggle('ai-mode', mode === 'ai');
+    this.modeBadge.classList.toggle('fallback-mode', mode === 'fallback');
+    this.modeBadge.textContent = mode === 'ai' ? 'AI Optimized' : mode === 'ready' ? 'Ready' : 'Standard Mode';
+  },
+
+  highlightAgent(agentName) {
+    document.querySelectorAll('.agent-card').forEach(card => {
+      const isActive = card.dataset.agent === agentName;
+      card.classList.toggle('active-agent', isActive);
+      if (isActive) {
+        card.classList.remove('highlight');
+        requestAnimationFrame(() => card.classList.add('highlight'));
+      }
+    });
+  }
 };

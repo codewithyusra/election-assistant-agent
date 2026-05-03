@@ -54,8 +54,12 @@ class RouterAgent extends BaseAgent {
       intent = this.keywordFallback(input);
     }
 
-    // Store in cache for next time
-    if (this.intentCache.size < 100) this.intentCache.set(input, intent);
+    // Store in cache for next time with simple FIFO eviction.
+    if (this.intentCache.size >= 100) {
+      const oldestKey = this.intentCache.keys().next().value;
+      this.intentCache.delete(oldestKey);
+    }
+    this.intentCache.set(input, intent);
     
     return intent;
   }
@@ -65,11 +69,11 @@ class RouterAgent extends BaseAgent {
    * @private
    */
   keywordFallback(input) {
-    if (input.includes('hello') || input.includes('hi')) return 'greeting';
-    if (input.includes('register') || input.includes('eligible')) return 'eligibility';
-    if (input.includes('date') || input.includes('when')) return 'timeline';
-    if (input.includes('where') || input.includes('booth')) return 'polling_station';
-    if (input.includes('how') || input.includes('what')) return 'election_info';
+    if (/\b(hello|hi|hey|namaste)\b/.test(input)) return 'greeting';
+    if (/\b(register|registration|eligible|eligibility|voter id|epic)\b/.test(input)) return 'eligibility';
+    if (/\b(date|deadline|schedule|phase|when|timeline)\b/.test(input)) return 'timeline';
+    if (/\b(where|booth|polling station|polling booth|nearest)\b/.test(input)) return 'polling_station';
+    if (/\b(how|what|evm|vvpat|commission|process|election type)\b/.test(input)) return 'election_info';
     return 'faq';
   }
 

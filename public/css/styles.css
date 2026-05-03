@@ -600,6 +600,42 @@ body {
   color: var(--accent-primary);
 }
 
+.video-results {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.video-card {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.video-card:hover {
+  border-color: var(--border-accent);
+  color: var(--text-accent);
+}
+
+.video-card img {
+  width: 88px;
+  height: 66px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.video-card span {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 .message-bubble hr {
   border: none;
   border-top: 1px solid var(--border-subtle);

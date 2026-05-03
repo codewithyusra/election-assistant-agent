@@ -5,6 +5,7 @@
 const BaseAgent = require('./baseAgent');
 const geminiService = require('../services/geminiService');
 const electionData = require('../data/electionData.json');
+const Logger = require('../services/logger');
 
 class TimelineAgent extends BaseAgent {
   constructor() {
@@ -53,7 +54,7 @@ ${JSON.stringify(electionData.keyDates, null, 2)}`;
         metadata: { source: 'gemini', type: 'timeline' }
       });
     } catch (error) {
-      console.warn('Timeline Agent falling back:', error.message);
+      Logger.warn('Timeline Agent falling back', error);
       return this.getFallbackResponse(message);
     }
   }

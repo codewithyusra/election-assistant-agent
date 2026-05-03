@@ -30,7 +30,12 @@ class FaqAgent extends BaseAgent {
         mode: 'ai', metadata: { source: 'gemini', videos }
       });
     } catch (error) {
-      return this.getFallbackResponse(message);
+      const fallback = this.getFallbackResponse(message);
+      if (message.length > 5 && youtubeService.isAvailable()) {
+        fallback.metadata.videos = await youtubeService.searchVideos(message);
+        fallback.metadata.source = 'static_data_with_youtube';
+      }
+      return fallback;
     }
   }
 

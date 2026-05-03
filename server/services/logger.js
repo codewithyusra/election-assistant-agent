@@ -23,6 +23,7 @@ const Logger = {
    * @param {Error|object} error - The error or warning context
    */
   warn(message, error = {}) {
+    if (config.nodeEnv === 'test') return;
     console.warn(`[WARN] [${new Date().toISOString()}] ${message}`, error.message || error);
   },
 
@@ -32,6 +33,7 @@ const Logger = {
    * @param {Error} error - The error object
    */
   error(message, error) {
+    if (config.nodeEnv === 'test') return;
     console.error(`[ERROR] [${new Date().toISOString()}] ${message}`, {
       errorMessage: error.message,
       stack: config.nodeEnv === 'development' ? error.stack : undefined,

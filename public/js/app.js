@@ -37,11 +37,13 @@ async function checkServiceHealth() {
     updateStatusDot('geminiStatus', data.services.gemini);
     updateStatusDot('mapsStatus', data.services.maps);
     updateStatusDot('sheetsStatus', data.services.sheets);
+    updateStatusDot('youtubeStatus', data.services.youtube);
   } catch (error) {
     console.warn('Health check failed:', error);
     updateStatusDot('geminiStatus', 'disabled');
     updateStatusDot('mapsStatus', 'disabled');
     updateStatusDot('sheetsStatus', 'disabled');
+    updateStatusDot('youtubeStatus', 'disabled');
   }
 }
 
