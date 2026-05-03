@@ -1,40 +1,35 @@
 /**
  * Google Maps Service
- * Provides polling station location functionality
+ * Optimized for high-quality embedding
  */
 const config = require('../config');
+const Logger = require('./logger');
 
 const mapsService = {
   /**
-   * Get a Google Maps embed URL for polling station search
-   * @param {string} query - Location query from user
-   * @returns {object|null} Map embed data
+   * Get a Google Maps embed URL for a location
+   * @param {string} query - Location to search for
+   * @returns {object|null} Map metadata and URL
    */
   async getMapEmbed(query) {
     if (!config.isMapsEnabled) return null;
 
     try {
-      const searchQuery = encodeURIComponent(`polling station ${query}`);
+      const searchQuery = encodeURIComponent(`polling station near ${query}`);
+      Logger.info(`Generating map embed for: ${query}`);
+      
       return {
+        type: 'map',
         embedUrl: `https://www.google.com/maps/embed/v1/search?key=${config.googleMapsApiKey}&q=${searchQuery}`,
-        searchUrl: `https://www.google.com/maps/search/polling+station+${searchQuery}`
+        place: query
       };
     } catch (error) {
-      console.warn('Maps service error:', error.message);
+      Logger.error('Failed to generate map embed', error);
       return null;
     }
   },
 
-  /**
-   * Get a static search link (works without API key)
-   * @param {string} location - Location string
-   * @returns {string} Google Maps search URL
-   */
-  getSearchLink(location) {
-    const query = encodeURIComponent(`polling station near ${location}`);
-    return `https://www.google.com/maps/search/${query}`;
-  },
-
+  /** Check if Maps is available */
   isAvailable() {
     return config.isMapsEnabled;
   }

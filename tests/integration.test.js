@@ -5,6 +5,11 @@ const http = require('http');
 
 jest.mock('../server/services/geminiService', () => ({
   generateContent: jest.fn().mockRejectedValue(new Error('Test mode')),
+  classifyIntent: jest.fn().mockImplementation((msg) => {
+    if (msg.includes('election')) return 'election_info';
+    if (msg.includes('eligible')) return 'eligibility';
+    return 'faq';
+  }),
   isAvailable: () => false
 }));
 

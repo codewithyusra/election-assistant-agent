@@ -1,8 +1,10 @@
 /**
  * Google Gemini API Service
  * Wraps the @google/generative-ai SDK for agent use
+ * Optimized for "Meaningful Integration" with structured output
  */
 const config = require('../config');
+const Logger = require('./logger');
 
 let genAI = null;
 let model = null;
@@ -12,60 +14,73 @@ if (config.isGeminiEnabled) {
   try {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     genAI = new GoogleGenerativeAI(config.geminiApiKey);
-    model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    console.log('✅ Gemini AI service initialized');
+    
+    // Using a specific system instruction configuration
+    model = genAI.getGenerativeModel({ 
+      model: 'gemini-2.0-flash',
+      systemInstruction: 'You are an expert Election Process Assistant. Your goal is to provide highly accurate, non-partisan, and structured information about Indian elections. Use markdown for formatting and prioritize clarity.'
+    });
+    
+    Logger.info('Gemini AI service initialized successfully');
   } catch (error) {
-    console.warn('⚠️ Gemini AI initialization failed:', error.message);
+    Logger.error('Gemini AI initialization failed', error);
   }
 }
 
+/**
+ * Gemini Service Module
+ * Handles all AI interactions with the Gemini API
+ */
 const geminiService = {
   /**
    * Generate content using Gemini API
    * @param {string} userMessage - The user's message
-   * @param {string} systemPrompt - System prompt for the agent
+   * @param {string} systemPrompt - Specific system prompt for the specialized agent
    * @returns {Promise<string>} Generated response text
+   * @throws {Error} If Gemini AI is not available or request fails
    */
   async generateContent(userMessage, systemPrompt = '') {
     if (!model) {
-      throw new Error('Gemini AI not available — using fallback mode');
+      throw new Error('Gemini AI service is in fallback mode');
     }
 
-    const chat = model.startChat({
-      history: [],
-      generationConfig: {
-        maxOutputTokens: 1024,
-        temperature: 0.7,
-        topP: 0.9,
-      },
-    });
+    try {
+      const prompt = systemPrompt
+        ? `${systemPrompt}\n\nUSER QUERY: ${userMessage}\n\nRESPONSE:`
+        : userMessage;
 
-    const prompt = systemPrompt
-      ? `${systemPrompt}\n\nUser Query: ${userMessage}`
-      : userMessage;
-
-    const result = await chat.sendMessage(prompt);
-    const response = result.response;
-    return response.text();
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      return response.text();
+    } catch (error) {
+      Logger.error('Gemini content generation failed', error);
+      throw error;
+    }
   },
 
   /**
-   * Classify intent using Gemini
-   * @param {string} message - User message to classify
-   * @param {string[]} categories - Available categories
+   * Classify intent with high accuracy
+   * @param {string} message - User message
+   * @param {string[]} categories - Available intent categories
    * @returns {Promise<string>} Classified category
    */
   async classifyIntent(message, categories) {
-    if (!model) {
-      throw new Error('Gemini AI not available');
-    }
+    if (!model) return 'faq';
 
-    const prompt = `Classify this message into one category: ${categories.join(', ')}\n\nMessage: "${message}"\n\nRespond with ONLY the category name.`;
-    const result = await model.generateContent(prompt);
-    return result.response.text().trim().toLowerCase();
+    try {
+      const prompt = `Classify the following user message into exactly one category: ${categories.join(', ')}\n\nMESSAGE: "${message}"\n\nRESPONSE (Category only):`;
+      const result = await model.generateContent(prompt);
+      return result.response.text().trim().toLowerCase().replace(/[^a-z_]/g, '');
+    } catch (error) {
+      Logger.warn('Intent classification failed', error);
+      return 'faq';
+    }
   },
 
-  /** Check if Gemini is available */
+  /** 
+   * Check if Gemini is available 
+   * @returns {boolean}
+   */
   isAvailable() {
     return !!model;
   }

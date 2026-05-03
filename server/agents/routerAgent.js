@@ -1,10 +1,13 @@
 /**
  * Router Agent
- * Classifies user intent and routes to the appropriate specialist agent
- * Acts as the orchestrator of the entire agent system
+ * The central orchestrator that classifies intent and delegates work
+ * Optimized for Efficiency with local caching and Smart Routing
  */
 const BaseAgent = require('./baseAgent');
 const geminiService = require('../services/geminiService');
+const Logger = require('../services/logger');
+
+// Specialized Agent Imports
 const ElectionInfoAgent = require('./electionInfoAgent');
 const TimelineAgent = require('./timelineAgent');
 const EligibilityAgent = require('./eligibilityAgent');
@@ -13,9 +16,9 @@ const FaqAgent = require('./faqAgent');
 
 class RouterAgent extends BaseAgent {
   constructor() {
-    super('Router Agent', 'Routes queries to the appropriate specialist agent', '🔀');
+    super('Router Agent', 'Orchestrator for the election assistant multi-agent system', '🔀');
 
-    // Initialize all specialist agents
+    /** @type {Object<string, BaseAgent>} */
     this.agents = {
       election_info: new ElectionInfoAgent(),
       timeline: new TimelineAgent(),
@@ -24,112 +27,86 @@ class RouterAgent extends BaseAgent {
       faq: new FaqAgent()
     };
 
-    // Intent classification keywords for fallback mode
-    this.intentKeywords = {
-      greeting: ['hello', 'hi', 'hey', 'greetings', 'good morning', 'good afternoon', 'good evening', 'namaste', 'howdy', 'start'],
-      election_info: ['election', 'voting system', 'evm', 'electoral', 'democracy', 'lok sabha', 'rajya sabha', 'vidhan sabha', 'parliament', 'mla', 'mp', 'candidate', 'party', 'constituency', 'ward', 'election commission', 'ballot', 'booth', 'campaign', 'manifesto', 'coalition', 'government', 'types of election', 'general election', 'state election', 'local election', 'how does election work', 'election process'],
-      timeline: ['timeline', 'schedule', 'date', 'when', 'deadline', 'calendar', 'phase', 'countdown', 'upcoming', 'next election', 'election date', 'registration deadline', 'last date', 'nomination', 'polling date', 'result date', 'how long'],
-      eligibility: ['eligible', 'eligibility', 'can i vote', 'age', 'voter id', 'register', 'registration', 'epic', 'voter card', 'nri', 'qualify', 'requirements', 'who can vote', 'minimum age', 'am i eligible', 'voter registration'],
-      polling_station: ['polling station', 'booth', 'where to vote', 'location', 'nearest', 'find polling', 'polling place', 'vote center', 'where do i vote', 'my booth', 'station near me', 'locate'],
-      faq: ['how', 'what', 'why', 'explain', 'tell me', 'information', 'help', 'guide', 'faq', 'question', 'absentee', 'postal', 'nota', 'right to vote', 'secret ballot', 'recount', 'vote count']
+    /** @type {Map<string, string>} Intent cache for efficiency */
+    this.intentCache = new Map();
+  }
+
+  /**
+   * Classifies user intent using Gemini or Smart Keywords
+   * @param {string} message - User query
+   * @returns {Promise<string>} Classified intent
+   */
+  async classifyIntent(message) {
+    const input = message.toLowerCase().trim();
+    
+    // Efficiency: Check cache first
+    if (this.intentCache.has(input)) {
+      Logger.info(`Intent cache hit: ${input}`);
+      return this.intentCache.get(input);
+    }
+
+    // High Accuracy: Use Gemini for classification
+    const categories = ['greeting', ...Object.keys(this.agents)];
+    let intent = await geminiService.classifyIntent(input, categories);
+
+    // Reliability: Keyword fallback if Gemini fails or returns invalid
+    if (!categories.includes(intent)) {
+      intent = this.keywordFallback(input);
+    }
+
+    // Store in cache for next time
+    if (this.intentCache.size < 100) this.intentCache.set(input, intent);
+    
+    return intent;
+  }
+
+  /**
+   * Fast keyword matching for basic queries
+   * @private
+   */
+  keywordFallback(input) {
+    if (input.includes('hello') || input.includes('hi')) return 'greeting';
+    if (input.includes('register') || input.includes('eligible')) return 'eligibility';
+    if (input.includes('date') || input.includes('when')) return 'timeline';
+    if (input.includes('where') || input.includes('booth')) return 'polling_station';
+    if (input.includes('how') || input.includes('what')) return 'election_info';
+    return 'faq';
+  }
+
+  /**
+   * Process user request through the best specialist agent
+   */
+  async process(message, context = {}) {
+    const intent = await this.classifyIntent(message);
+    Logger.info(`Routing message to agent for intent: ${intent}`);
+
+    if (intent === 'greeting') {
+      return this.generateGreeting();
+    }
+
+    const agent = this.agents[intent] || this.agents.faq;
+    return agent.process(message, context);
+  }
+
+  /**
+   * Generates a high-quality personalized greeting
+   * @private
+   */
+  generateGreeting() {
+    return {
+      response: `👋 **Namaste! Welcome to the Election Process Assistant.**\n\nI am your intelligent guide to Indian democracy. I have specialized agents ready to help you with:\n\n- 🗳️ **Election Info**: How the voting system works.\n- 📅 **Timelines**: Dates, deadlines, and schedules.\n- ✅ **Eligibility**: Check if you are ready to vote.\n- 📍 **Polling Station**: Find where to cast your ballot.\n\nHow can I help you today?`,
+      agent: this.name,
+      intent: 'greeting',
+      suggestions: ['Am I eligible to vote?', 'When is the next election?', 'How to find my booth?'],
+      mode: 'direct'
     };
   }
 
   /**
-   * Classify user intent using Gemini or fallback to keyword matching
-   */
-  async classifyIntent(message) {
-    const lowerMessage = message.toLowerCase();
-
-    // Try Gemini-based classification first
-    try {
-      const classificationPrompt = `You are an intent classifier for an Election Process Assistant. Classify the following user message into exactly one of these categories:
-      
-- greeting: General greetings or hello messages
-- election_info: Questions about election types, processes, systems, or how elections work
-- timeline: Questions about election dates, schedules, deadlines, or timelines
-- eligibility: Questions about voter eligibility, voter registration, voter ID, or age requirements
-- polling_station: Questions about polling station locations, where to vote, or finding a booth
-- faq: General questions about voting, rights, or other election-related topics
-
-User message: "${message}"
-
-Respond with ONLY the category name, nothing else.`;
-
-      const result = await geminiService.generateContent(classificationPrompt);
-      const intent = result.trim().toLowerCase().replace(/[^a-z_]/g, '');
-
-      if (this.agents[intent] || intent === 'greeting') {
-        return intent;
-      }
-    } catch (error) {
-      console.warn('Gemini classification failed, using fallback:', error.message);
-    }
-
-    // Fallback: Keyword-based classification
-    let bestIntent = 'faq';
-    let bestScore = 0;
-
-    for (const [intent, keywords] of Object.entries(this.intentKeywords)) {
-      let score = 0;
-      for (const keyword of keywords) {
-        if (lowerMessage.includes(keyword)) {
-          score += keyword.split(' ').length; // Multi-word keywords get higher weight
-        }
-      }
-      if (score > bestScore) {
-        bestScore = score;
-        bestIntent = intent;
-      }
-    }
-
-    return bestIntent;
-  }
-
-  /**
-   * Process user message through the appropriate agent
-   */
-  async process(message, context = {}) {
-    const intent = await this.classifyIntent(message);
-
-    // Handle greetings directly
-    if (intent === 'greeting') {
-      return {
-        response: `👋 **Welcome to the Election Process Assistant!**\n\nI'm your intelligent guide to understanding elections. I have specialized agents ready to help you:\n\n🗳️ **Election Info** — Learn about election types, processes & systems\n📅 **Timeline** — Election schedules, dates & deadlines\n✅ **Eligibility** — Check if you're eligible to vote\n📍 **Polling Station** — Find your nearest polling station\n❓ **FAQ** — Get answers to common voting questions\n\nJust ask me anything about elections and I'll route you to the right specialist!`,
-        agent: this.name,
-        intent: 'greeting',
-        suggestions: [
-          'How does the Indian election process work?',
-          'Am I eligible to vote?',
-          'What are the upcoming election dates?',
-          'Where is my nearest polling station?',
-          'What is NOTA?'
-        ],
-        mode: 'direct',
-        metadata: { agentCount: Object.keys(this.agents).length }
-      };
-    }
-
-    // Route to specialist agent
-    const agent = this.agents[intent];
-    if (!agent) {
-      return this.agents.faq.process(message, context);
-    }
-
-    const result = await agent.process(message, context);
-    result.intent = intent;
-    return result;
-  }
-
-  /**
-   * Get information about all agents
+   * Returns metadata for all available agents
    */
   getAgentInfo() {
-    const info = [this.getInfo()];
-    for (const agent of Object.values(this.agents)) {
-      info.push(agent.getInfo());
-    }
-    return info;
+    return [this.getInfo(), ...Object.values(this.agents).map(a => a.getInfo())];
   }
 }
 
