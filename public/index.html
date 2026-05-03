@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive Election Process Assistant - An AI-powered agent system to help you understand elections, voter eligibility, timelines, and polling stations.">
+  <title>Election Assistant — Agent-Based System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Animated background -->
+    <div class="bg-animation">
+      <div class="bg-orb bg-orb-1"></div>
+      <div class="bg-orb bg-orb-2"></div>
+      <div class="bg-orb bg-orb-3"></div>
+    </div>
+
+    <!-- Sidebar: Agent Panel -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">🗳️</span>
+          <div>
+            <h1 class="logo-title">Election Assistant</h1>
+            <p class="logo-subtitle">Agent-Based System</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="agent-section">
+        <h2 class="section-title">Active Agents</h2>
+        <div class="agent-list" id="agentList">
+          <div class="agent-card active-agent" data-agent="Router Agent">
+            <div class="agent-icon">🔀</div>
+            <div class="agent-info">
+              <span class="agent-name">Router Agent</span>
+              <span class="agent-desc">Intent classification & routing</span>
+            </div>
+            <div class="agent-status online"></div>
+          </div>
+          <div class="agent-card" data-agent="Election Info Agent">
+            <div class="agent-icon">🗳️</div>
+            <div class="agent-info">
+              <span class="agent-name">Election Info</span>
+              <span class="agent-desc">Types, processes & systems</span>
+            </div>
+            <div class="agent-status online"></div>
+          </div>
+          <div class="agent-card" data-agent="Timeline Agent">
+            <div class="agent-icon">📅</div>
+            <div class="agent-info">
+              <span class="agent-name">Timeline</span>
+              <span class="agent-desc">Schedules & key dates</span>
+            </div>
+            <div class="agent-status online"></div>
+          </div>
+          <div class="agent-card" data-agent="Eligibility Agent">
+            <div class="agent-icon">✅</div>
+            <div class="agent-info">
+              <span class="agent-name">Eligibility Checker</span>
+              <span class="agent-desc">Voter eligibility & registration</span>
+            </div>
+            <div class="agent-status online"></div>
+          </div>
+          <div class="agent-card" data-agent="Polling Station Agent">
+            <div class="agent-icon">📍</div>
+            <div class="agent-info">
+              <span class="agent-name">Polling Station</span>
+              <span class="agent-desc">Find your polling booth</span>
+            </div>
+            <div class="agent-status online"></div>
+          </div>
+          <div class="agent-card" data-agent="FAQ Agent">
+            <div class="agent-icon">❓</div>
+            <div class="agent-info">
+              <span class="agent-name">FAQ</span>
+              <span class="agent-desc">Common voting questions</span>
+            </div>
+            <div class="agent-status online"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="service-status" id="serviceStatus">
+          <h3 class="status-title">Google Services</h3>
+          <div class="status-item" id="geminiStatus">
+            <span class="status-dot"></span>
+            <span>Gemini AI</span>
+          </div>
+          <div class="status-item" id="mapsStatus">
+            <span class="status-dot"></span>
+            <span>Google Maps</span>
+          </div>
+          <div class="status-item" id="sheetsStatus">
+            <span class="status-dot"></span>
+            <span>Google Sheets</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="top-bar-info">
+          <h2 id="activeAgentName">Election Assistant</h2>
+          <span class="mode-badge" id="modeBadge">Ready</span>
+        </div>
+        <div class="top-bar-actions">
+          <button class="btn-icon" id="clearChat" title="Clear conversation">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Chat Messages -->
+      <div class="chat-container" id="chatContainer">
+        <div class="chat-messages" id="chatMessages">
+          <!-- Welcome message inserted by JS -->
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="suggestions-container" id="suggestionsContainer">
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea
+            id="messageInput"
+            placeholder="Ask about elections, eligibility, timelines..."
+            rows="1"
+            aria-label="Type your message"
+          ></textarea>
+          <button class="send-btn" id="sendBtn" aria-label="Send message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+        <p class="input-hint">Press Enter to send • Shift+Enter for new line</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/components.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

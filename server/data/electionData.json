@@ -1,0 +1,207 @@
+{
+  "electionTypes": [
+    {
+      "name": "General Elections (Lok Sabha)",
+      "description": "Elections to the lower house of Parliament. 543 constituencies across India elect Members of Parliament (MPs).",
+      "frequency": "Every 5 years",
+      "conductedBy": "Election Commission of India",
+      "seats": 543,
+      "votingSystem": "First Past The Post (FPTP)"
+    },
+    {
+      "name": "State Assembly Elections (Vidhan Sabha)",
+      "description": "Elections to state legislative assemblies. Each state has its own election cycle.",
+      "frequency": "Every 5 years (per state)",
+      "conductedBy": "Election Commission of India",
+      "votingSystem": "First Past The Post (FPTP)"
+    },
+    {
+      "name": "Local Body Elections (Panchayat/Municipal)",
+      "description": "Elections to local governing bodies — Panchayats in rural areas and Municipal Corporations/Councils in urban areas.",
+      "frequency": "Every 5 years",
+      "conductedBy": "State Election Commissions",
+      "votingSystem": "Varies by state"
+    },
+    {
+      "name": "Rajya Sabha Elections",
+      "description": "Elections to the upper house of Parliament. Members are elected by state MLAs, not by direct public vote.",
+      "frequency": "Biennial (one-third members every 2 years)",
+      "conductedBy": "Election Commission of India",
+      "votingSystem": "Single Transferable Vote"
+    },
+    {
+      "name": "By-Elections",
+      "description": "Special elections held to fill vacancies caused by death, resignation, or disqualification of a member.",
+      "frequency": "As needed",
+      "conductedBy": "Election Commission of India",
+      "votingSystem": "First Past The Post (FPTP)"
+    }
+  ],
+  "process": {
+    "steps": [
+      {
+        "title": "Announcement of Election Dates",
+        "description": "The Election Commission announces the election schedule, including dates for nomination, campaigning, polling, and counting."
+      },
+      {
+        "title": "Nomination of Candidates",
+        "description": "Candidates file nomination papers with the Returning Officer. Nominations are scrutinized and candidates can withdraw within the specified period."
+      },
+      {
+        "title": "Campaign Period",
+        "description": "Political parties and candidates campaign to win voter support. Campaigning must stop 48 hours before polling (silent period)."
+      },
+      {
+        "title": "Polling Day",
+        "description": "Voters cast their votes at designated polling stations using EVMs. Polling typically runs from 7 AM to 6 PM."
+      },
+      {
+        "title": "Vote Counting",
+        "description": "EVMs are stored securely and counted on the designated counting day. VVPAT slips may be cross-verified."
+      },
+      {
+        "title": "Declaration of Results",
+        "description": "Results are declared by the Returning Officer. The candidate with the most votes wins the constituency."
+      },
+      {
+        "title": "Government Formation",
+        "description": "The party or coalition with a majority (272+ seats in Lok Sabha) is invited to form the government."
+      }
+    ]
+  },
+  "timeline": {
+    "generalElection": [
+      {
+        "phase": "Pre-Election Preparation",
+        "timing": "6-12 months before",
+        "description": "Electoral roll revision, booth mapping, training of officials, EVM preparation.",
+        "icon": "📋"
+      },
+      {
+        "phase": "Election Announcement",
+        "timing": "45-60 days before polling",
+        "description": "ECI announces schedule. Model Code of Conduct comes into effect immediately.",
+        "icon": "📢"
+      },
+      {
+        "phase": "Nomination Period",
+        "timing": "7-10 days",
+        "description": "Candidates file nominations, followed by scrutiny and withdrawal period.",
+        "icon": "📝"
+      },
+      {
+        "phase": "Campaign Period",
+        "timing": "2-3 weeks per phase",
+        "description": "Active campaigning through rallies, media, and door-to-door outreach.",
+        "icon": "📣"
+      },
+      {
+        "phase": "Silent Period",
+        "timing": "48 hours before polling",
+        "description": "All campaigning must stop. No appeals to voters allowed.",
+        "icon": "🤫"
+      },
+      {
+        "phase": "Polling",
+        "timing": "1 day per phase (multiple phases)",
+        "description": "Voters cast ballots at polling stations. Usually 7 AM to 6 PM.",
+        "icon": "🗳️"
+      },
+      {
+        "phase": "Counting Day",
+        "timing": "3-4 days after last phase",
+        "description": "EVMs opened and votes counted under strict supervision.",
+        "icon": "🔢"
+      },
+      {
+        "phase": "Results & Formation",
+        "timing": "Same day as counting",
+        "description": "Winners declared. Government formation process begins.",
+        "icon": "🏛️"
+      }
+    ]
+  },
+  "keyDates": {
+    "note": "Specific dates change each election. Below are general patterns.",
+    "registrationCutoff": "January 1 of qualifying year (age eligibility)",
+    "rollRevision": "October-November annually",
+    "generalElectionCycle": "Every 5 years from last Lok Sabha dissolution"
+  },
+  "eligibility": {
+    "minimumAge": 18,
+    "ageReference": "January 1 of the qualifying year",
+    "citizenship": "Must be a citizen of India",
+    "residency": "Must be a resident of the constituency",
+    "disqualifications": [
+      "Non-citizen",
+      "Below 18 years of age",
+      "Declared of unsound mind by court",
+      "Disqualified for corrupt practices",
+      "Disqualified under any law"
+    ],
+    "registrationMethods": [
+      "Online at voters.eci.gov.in (Form 6)",
+      "Voter Helpline App",
+      "In person at Electoral Registration Office",
+      "Through BLO (Booth Level Officer)"
+    ]
+  },
+  "faqs": [
+    {
+      "question": "What is NOTA?",
+      "keywords": ["nota", "none of the above"],
+      "icon": "🚫",
+      "answer": "**NOTA (None Of The Above)** is an option on the EVM that allows voters to reject all candidates. Introduced in 2013 after a Supreme Court ruling, it ensures voters can express dissatisfaction without boycotting the election. However, even if NOTA gets the most votes, the candidate with the highest votes among actual candidates wins.",
+      "shortAnswer": "NOTA lets you reject all candidates while still participating in voting."
+    },
+    {
+      "question": "How is vote secrecy maintained?",
+      "keywords": ["secrecy", "secret", "privacy", "confidential"],
+      "icon": "🔒",
+      "answer": "Vote secrecy is maintained through: **Voting compartments** that shield voters, **EVMs** that don't display vote tallies until counting, **VVPAT slips** that drop into a sealed box, **Legal protection** under Section 128 of RPA making it illegal to reveal votes, and **Strict protocols** for EVM storage and transport.",
+      "shortAnswer": "Through voting compartments, sealed EVMs, VVPAT verification, and legal protections."
+    },
+    {
+      "question": "What is a postal ballot?",
+      "keywords": ["postal", "mail", "absentee"],
+      "icon": "📮",
+      "answer": "**Postal ballots** allow certain voters to vote by mail without visiting a polling station. Eligible categories include: service voters (military/paramilitary), government employees on election duty, voters above 80 years of age, persons with disabilities, and voters under preventive detention.",
+      "shortAnswer": "Mail-in voting for military personnel, elderly (80+), disabled, and election duty officials."
+    },
+    {
+      "question": "What is the Model Code of Conduct?",
+      "keywords": ["model code", "code of conduct", "mcc"],
+      "icon": "📜",
+      "answer": "The **Model Code of Conduct (MCC)** is a set of guidelines issued by the ECI that political parties and candidates must follow during elections. It covers: no misuse of government machinery, no appeals to communal or caste feelings, no bribing voters, no use of government media for party publicity, and restrictions on announcements of new schemes during election period.",
+      "shortAnswer": "ECI guidelines that regulate conduct of parties and candidates during elections."
+    },
+    {
+      "question": "What if my name is missing from the voter list?",
+      "keywords": ["missing", "not in list", "name not found", "voter list"],
+      "icon": "😟",
+      "answer": "If your name is missing from the voter list:\n1. Check online at [voters.eci.gov.in](https://voters.eci.gov.in)\n2. Contact your local BLO (Booth Level Officer)\n3. File **Form 6** for new registration\n4. If recently moved, file **Form 8A** for address change\n5. Call Voter Helpline **1950** for assistance\n\n**Note:** You cannot vote without being on the electoral roll. Apply well before elections.",
+      "shortAnswer": "Check online, contact BLO, file Form 6 for registration, or call 1950 helpline."
+    },
+    {
+      "question": "What is the Right to Vote?",
+      "keywords": ["right to vote", "fundamental right", "voting right"],
+      "icon": "⚖️",
+      "answer": "The **Right to Vote** in India is a constitutional right under **Article 326** (universal adult suffrage). While the Supreme Court has ruled it is a statutory right (not a fundamental right), it is essential to democracy. Every citizen aged 18+ has the right to vote regardless of caste, creed, religion, gender, or economic status.",
+      "shortAnswer": "Constitutional right under Article 326 — every citizen 18+ can vote regardless of background."
+    },
+    {
+      "question": "How are election results calculated?",
+      "keywords": ["result", "counting", "winner", "majority", "calculate"],
+      "icon": "📊",
+      "answer": "India uses the **First Past The Post (FPTP)** system:\n- Each constituency elects one representative\n- The candidate with the **most votes wins** (simple majority)\n- No minimum vote percentage required\n- EVMs are opened on counting day under supervision\n- VVPAT slips verified for randomly selected booths\n- Results typically available within hours of counting start",
+      "shortAnswer": "FPTP system — candidate with the most votes in each constituency wins."
+    },
+    {
+      "question": "Can I change my constituency?",
+      "keywords": ["change constituency", "transfer", "shift", "moved", "relocate"],
+      "icon": "🔄",
+      "answer": "Yes, if you've moved to a new address:\n1. File **Form 8A** at [voters.eci.gov.in](https://voters.eci.gov.in)\n2. Provide new address proof\n3. Your registration transfers to the new constituency\n4. Your old registration is automatically cancelled\n\n**Important:** Apply early — processing takes 2-4 weeks.",
+      "shortAnswer": "File Form 8A online with new address proof to transfer your voter registration."
+    }
+  ]
+}
